@@ -8,4 +8,88 @@ ardino dht - https://wokwi.com/projects/447083074389960705
 rash dht - https://wokwi.com/projects/447083082747113473
 https://wokwi.com/projects/300504213470839309
 
+1.single led Arduino - https://wokwi.com/projects/447070284095551489
+   two led Arduino- https://wokwi.com/projects/447070664576650241
+2.temperature sensor - https://wokwi.com/projects/447071288021218305
+   temperature sensor threshold- https://wokwi.com/projects/447072152707481601
+   stepper motor - https://wokwi.com/projects/447073480233145345
+3. single led raspberry- https://wokwi.com/projects/447074086726418433
+    two led raspberry - https://wokwi.com/projects/447074086726418433
+    push button - https://wokwi.com/projects/447077310740405249
+4. ultro sonic raspberry - https://wokwi.com/projects/447077696105759745
+   servo motor - https://wokwi.com/projects/447078402898486273
+   temperature and humidity - https://wokwi.com/projects/447078681690746881
+5.  cloud log - https://wokwi.com/projects/447081752173222913
+6. log data using raspberry - https://wokwi.com/projects/447081752173222913
+8. vehicle parking - https://wokwi.com/projects/447081855348921345
+9. healthcare- https://wokwi.com/projects/447074110391731201
+10. data acquistation (gas,temp,hum) - https://wokwi.com/projects/447085680752688129
+
+from machine import Pin
+from utime import sleep
+import network
+import urequests
+import dht
+
+# --- Setup DHT22 sensor ---
+dhtsensor = dht.DHT22(Pin(15))
+
+# --- ThingSpeak details ---
+THINGSPEAK_API = "CM6V5SWBBY4NBUOE"
+THINGSPEAK_URL = "https://api.thingspeak.com/update"
+
+# --- WiFi credentials ---
+WIFI_SSID = "Wanna be ArTiSt"
+WIFI_PASSWORD = "tatatata"
+
+# --- Connect to WiFi ---
+wlan = network.WLAN(network.STA_IF)
+wlan.active(True)
+wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+
+print("Connecting to WiFi...")
+while not wlan.isconnected():
+    sleep(1)
+print("Connected! IP:", wlan.ifconfig()[0])
+
+sleep(0.5)
+print("Hello, Pi Pico W!")
+
+# --- Main loop ---
+while True:
+    dhtsensor.measure()
+    temp = dhtsensor.temperature()
+    humi = dhtsensor.humidity()
+    print("Temperature:", temp, "°C")
+    print("Humidity:", humi, "%")
+
+    # Send data to ThingSpeak
+    response = urequests.get(f"{THINGSPEAK_URL}?api_key={THINGSPEAK_API}&field1={temp}&field2={humi}")
+    print("ThingSpeak response:", response.text)
+    response.close()
+
+    sleep(15)  # ThingSpeak allows 15-sec minimum update interval
+
+
+#define SOIL_PIN A0  // Analog pin connected to the soil moisture sensor
+
+int soilValue = 0;   // Variable to store sensor value
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Soil Moisture Monitoring System");
+}
+
+void loop() {
+  soilValue = analogRead(SOIL_PIN);  // Read analog value (0–1023)
+
+  Serial.print("Soil Moisture Value: ");
+  Serial.println(soilValue);         // Display raw sensor value
+
+  delay(2000); // Read every 2 seconds
+}
+
+
+
+
 
